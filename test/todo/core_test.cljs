@@ -1,7 +1,7 @@
-(ns scores.core-test
+(ns todo.core-test
     (:require
      [cljs.test :refer-macros [deftest is testing]]
-     [scores.core :refer [multiply]]
+     [todo.core :refer [multiply]]
 	 [malli.core :as m] 
 	 [malli.error :as me]))
 

@@ -1,8 +1,8 @@
-(ns scores.reframe
+(ns todo.reframe
   (:require [re-frame.core :as rf]
             [goog.object :as gobj]
 			[lambdaisland.fetch :as fetch]
-            [scores.s-log :refer [log!]]
+            [todo.s-log :refer [log!]]
 			[clojure.walk :as walk]))
 
 (def api "http://localhost:8080/api/")

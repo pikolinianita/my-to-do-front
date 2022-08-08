@@ -1,8 +1,8 @@
-(ns scores.view
+(ns todo.view
   (:require [cljs.pprint :refer [cl-format]]
             [reagent.core :as reagent]
             [re-frame.core :as rf]
-			[scores.s-log :refer [log!]]
+			[todo.s-log :refer [log!]]
             [cljs.pprint :refer [pprint cl-format]]
             [re-frame.db :as rfdb]))
 

@@ -1,4 +1,4 @@
-(ns scores.s-log)
+(ns todo.s-log)
 
 (defn log! [k & args]
   (if (keyword? k)
