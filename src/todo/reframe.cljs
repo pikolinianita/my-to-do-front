@@ -98,7 +98,12 @@
 	)
 )
 
-
+(rf/reg-sub
+	:screen
+	(fn [db]
+		(db :screen)
+	)
+)
 
 
 

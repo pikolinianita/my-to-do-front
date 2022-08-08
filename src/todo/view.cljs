@@ -2,6 +2,7 @@
   (:require [cljs.pprint :refer [cl-format]]
             [reagent.core :as reagent]
             [re-frame.core :as rf]
+			[todo.reframe :as reframki]
 			[todo.s-log :refer [log!]]
             [cljs.pprint :refer [pprint cl-format]]
             [re-frame.db :as rfdb]))
@@ -61,10 +62,25 @@
 		]))
 )
 
+(defn other-screen []
+	[:div "other page is better than that"]
+
+)
+
+(defn failure-screen []
+	[:div "something went wrong!"])
+
 (defn selector []
+	(let [page @(rf/subscribe [:screen])]
   [:div
    "Here will be dragons"
-   [welcome-screen]
+   (log! :i page)
+   (case page
+   :login [welcome-screen]
+   :user [other-screen]
+   [failure-screen]
+   )
+   
    [:button.button {:on-click (fn [_] (rf/dispatch [:futch "gazeta.pl"]))} "send"]
-   [:pre (with-out-str (pprint @rfdb/app-db))]])
+   [:pre (with-out-str (pprint @rfdb/app-db))]]))
 
