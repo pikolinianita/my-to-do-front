@@ -5,19 +5,14 @@
             [scores.s-log :refer [log!]]
 			[clojure.walk :as walk]))
 
+(def api "http://localhost:8080/api/")
+
 (rf/reg-event-db 
  :init-db
  (fn [_ _]
    (log! :i "DB Init")
-   {:screen :scoresheet
-    :coeff "no"
-    :jump-params "ooo"
-    :score "fujj"
-    :r-dict {:jpoints "Punkty Sedziowskie"
-             :wind "Rekom. za wiatr"
-             :distance "Punkty za dystans"
-             :height "Punkty za wysokość"
-             :total "Pkty W Sumie"}}))
+   {:screen :login}
+    ))
 
 (rf/reg-event-db
 	:fetch
@@ -66,12 +61,42 @@
 	)
 )
 
+(rf/reg-event-db
+	:try-login
+	(fn [db [_ name]]
+	(rf/dispatch [:fitch-get (str "user/" name) :got-user :failed-user])
+	db
+	)
+)
 
+(rf/reg-event-db
+	:fitch-get
+	(fn [db [_ name succ failure]]
+		(-> (.fetch js/window (str api name) (clj->js {:mode "cors"}))
+		(.then #(.json %))
+		(.then #(rf/dispatch [succ (js->clj % :keywordize-keys true)]))
+		(.catch #(rf/dispatch [failure]))
+		
+		)
+	db
+	
+	)
+)
 
+(rf/reg-event-db
+	:failed-user
+	(fn [db _]
+		(assoc db :screen :login)
+	)
+)
 
-
-
-
+(rf/reg-event-db
+	:got-user
+	(fn [db [_ body]]
+		(log! :i body)
+		(assoc db :screen :user :user body)
+	)
+)
 
 
 

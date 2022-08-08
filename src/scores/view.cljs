@@ -2,6 +2,7 @@
   (:require [cljs.pprint :refer [cl-format]]
             [reagent.core :as reagent]
             [re-frame.core :as rf]
+			[scores.s-log :refer [log!]]
             [cljs.pprint :refer [pprint cl-format]]
             [re-frame.db :as rfdb]))
 
@@ -44,10 +45,26 @@
      [:a "Balance"]]]]
   )
 
+(defn welcome-screen []
+(let [inp (reagent/atom {:name "kolorectal"})]
+	(fn [] 
+	[:div
+		[:h1 "Please enter user name"]
+		[:input {:type :text
+            :value (@inp :name)
+			:name "user-name"
+            :on-change (fn [e]
+						(log! :i (-> e .-target .-value))
+                         (swap! inp assoc :name (-> e .-target .-value)))}]
+		[:button.button {:on-click (fn [_] (rf/dispatch [:try-login (@inp :name)]))} "Find User"]
+        [:button.button {:on-click (fn [_] (rf/dispatch [:try-create (@inp :name)]))} "Create User - not work yet"]		
+		]))
+)
+
 (defn selector []
   [:div
    "Here will be dragons"
-   
+   [welcome-screen]
    [:button.button {:on-click (fn [_] (rf/dispatch [:futch "gazeta.pl"]))} "send"]
    [:pre (with-out-str (pprint @rfdb/app-db))]])
 
