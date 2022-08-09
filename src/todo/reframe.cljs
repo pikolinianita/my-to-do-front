@@ -115,7 +115,9 @@
 
 (rf/reg-sub 
 	:user
-	(fn [db] (db :user)))
+	(fn [db] 
+	(log! :i "user sub: " db)
+	(db :user)))
 
 
 

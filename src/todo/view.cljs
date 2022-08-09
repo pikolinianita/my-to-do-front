@@ -62,14 +62,24 @@
 		]))
 )
 
+(defn draw-user [{:keys [name]}]
+    (log! :i "Here is User: " name)
+	[:ul.menu-list 
+	[:li name ]]
+)
+
 (defn side-menu [] 
-	[:div "User Menu"
-	;()
-		;[draw-user @(:user)]
+(let [us @(rf/subscribe [:user])]
+(log! :i "us: " us)
+	[:aside.menu 
+		[:p.menu-label "User Menu"]
+	
+		[draw-user us]
+		[:p.menu-label "Projects:"]
 		;(for )
 	]
 		
-		)
+))
 
 (defn central-page []
 	[:div "central page"])	
