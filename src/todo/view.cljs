@@ -62,10 +62,28 @@
 		]))
 )
 
-(defn other-screen []
-	[:div "other page is better than that"]
+(defn side-menu [] 
+	[:div "User Menu"
+	;()
+		;[draw-user @(:user)]
+		;(for )
+	]
+		
+		)
 
-)
+(defn central-page []
+	[:div "central page"])	
+
+(defn user-screen []
+	(let [hmm @(rf/subscribe [:active])]
+	[:div
+		[:div "other page is better than that"]
+		[:div.columns
+			[:div.column.is-one-third [side-menu]]
+			[:div.column [central-page]]]
+	]
+
+))
 
 (defn failure-screen []
 	[:div "something went wrong!"])
@@ -77,7 +95,7 @@
    (log! :i page)
    (case page
    :login [welcome-screen]
-   :user [other-screen]
+   :user [user-screen]
    [failure-screen]
    )
    

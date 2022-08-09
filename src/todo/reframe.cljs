@@ -11,7 +11,8 @@
  :init-db
  (fn [_ _]
    (log! :i "DB Init")
-   {:screen :login}
+   {:screen :login
+    :active :login}
     ))
 
 (rf/reg-event-db
@@ -94,7 +95,7 @@
 	:got-user
 	(fn [db [_ body]]
 		(log! :i body)
-		(assoc db :screen :user :user body)
+		(assoc db :active :user :screen :user, :user (dissoc body :projects), :projects (body :projects))
 	)
 )
 
@@ -105,7 +106,16 @@
 	)
 )
 
+(rf/reg-sub
+	:active
+	(fn [db]
+		"wtf"
+	)
+)
 
+(rf/reg-sub 
+	:user
+	(fn [db] (db :user)))
 
 
 
