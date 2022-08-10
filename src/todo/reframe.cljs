@@ -14,6 +14,19 @@
    {:screen :login
     :active :login}
     ))
+	
+(rf/reg-event-db 
+ :dev-init-db
+  (fn [_ _]
+   (log! :i "DB Init")
+ {:screen :user,
+ :active [:user nil]
+ :user {:id 1, :name "Worker"},
+ :projects
+ [{:id 4, :name "Read"}
+  {:id 3, :name "Program"} 
+  {:id 5, :name "Not Started"}]}))
+	
 
 (rf/reg-event-db
 	:fetch
@@ -63,6 +76,14 @@
 )
 
 (rf/reg-event-db
+	:active
+	(fn [db [_ arg id]]
+	(log! :i "activate: " arg " id: " id)
+	(assoc db :active [arg id])
+	)
+)
+
+(rf/reg-event-db
 	:try-login
 	(fn [db [_ name]]
 	(rf/dispatch [:fitch-get (str "user/" name) :got-user :failed-user])
@@ -95,7 +116,7 @@
 	:got-user
 	(fn [db [_ body]]
 		(log! :i body)
-		(assoc db :active :user :screen :user, :user (dissoc body :projects), :projects (body :projects))
+		(assoc db :active [:user nil] :screen :user, :user (dissoc body :projects), :projects (body :projects))
 	)
 )
 
@@ -106,10 +127,10 @@
 	)
 )
 
-(rf/reg-sub
+(rf/reg-sub 
 	:active
 	(fn [db]
-		"wtf"
+		(db :active)
 	)
 )
 
@@ -119,7 +140,11 @@
 	(log! :i "user sub: " db)
 	(db :user)))
 
-
+(rf/reg-sub  
+	:projects
+	(fn [db] 
+	(log! :i "projects sub: " db)
+	(db :projects)))
 
 
 

@@ -47,7 +47,7 @@
   )
 
 (defn welcome-screen []
-(let [inp (reagent/atom {:name "kolorectal"})]
+(let [inp (reagent/atom {:name "" :placeholder "Write User Number"})]
 	(fn [] 
 	[:div
 		[:h1 "Please enter user name"]
@@ -65,34 +65,66 @@
 (defn draw-user [{:keys [name]}]
     (log! :i "Here is User: " name)
 	[:ul.menu-list 
-	[:li name ]]
+	[:li {:on-click (fn [_] (rf/dispatch [:active :user]))} [( if (= (first @(rf/subscribe [:active])) :user ) :a.is-active :a) name ]]]
+)
+
+(defn project-element [name id]
+	(log! :i  "active: " @(rf/subscribe [:active]) " id: " id)
+	[:ul.menu-list {:on-click (fn [_] (rf/dispatch [:active :project id]))} 
+		[(if (= (second @(rf/subscribe [:active])) id) :a.is-active :a) name]]
 )
 
 (defn side-menu [] 
-(let [us @(rf/subscribe [:user])]
+(let [us @(rf/subscribe [:user])
+		projects @(rf/subscribe [:projects])]
 (log! :i "us: " us)
-	[:aside.menu 
-		[:p.menu-label "User Menu"]
-	
+	[:aside.menu.mt-3.ml-4 
+		[:p.menu-label "User:"]
 		[draw-user us]
 		[:p.menu-label "Projects:"]
+		(for [{:keys [name id]} projects]
+			[project-element name id]
+		)
 		;(for )
 	]
 		
 ))
 
-(defn central-page []
-	[:div "central page"])	
+(defn user-component []
+	(let [user-name (:name @(rf/subscribe [:user]))
+		  project-count (count @(rf/subscribe [:projects]))]
+		[:div.has-text-centered
+			[:div.is-size-3 (str "Hello " user-name)]
+			[:div "wellcome to the jungle"]
+			(if (zero? project-count) 
+				[:div "Start project please!!!"] 
+				[:div (str "you have " project-count " projects!" )])
+			[:div
+				 [:button.button.mx-2 "Create Project"]
+				 [:button.button.is-danger.mx-2 "Delete User"]
+			]
+		]
+	)
+)
 
-(defn user-screen []
+(defn central-page []
+	(case (first @(rf/subscribe [:active]))
+		:user [user-component]
+		:project "project component"
+		:event "event component"
+		"something wrong" 	
+	))	
+
+(defn main-screen []
 	(let [hmm @(rf/subscribe [:active])]
 	[:div
-		[:div "other page is better than that"]
+		[:section.hero.is-primary.has-text-centered [:div.hero-body 
+			[:p.title "Here be dragons"] 
+			[:p.subtitle "No other page is better than this"]]]
 		[:div.columns
 			[:div.column.is-one-third [side-menu]]
 			[:div.column [central-page]]]
 	]
-
 ))
 
 (defn failure-screen []
@@ -101,11 +133,11 @@
 (defn selector []
 	(let [page @(rf/subscribe [:screen])]
   [:div
-   "Here will be dragons"
+  
    (log! :i page)
    (case page
    :login [welcome-screen]
-   :user [user-screen]
+   :user [main-screen]
    [failure-screen]
    )
    
