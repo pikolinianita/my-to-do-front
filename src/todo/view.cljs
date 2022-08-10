@@ -85,9 +85,7 @@
 		(for [{:keys [name id]} projects]
 			[project-element name id]
 		)
-		;(for )
-	]
-		
+	]		
 ))
 
 (defn user-component []
@@ -107,10 +105,16 @@
 	)
 )
 
+(defn project-component []
+	(let [active-project @(rf/subscribe [:active-project])]
+		[:div (str active-project)]
+	)
+)
+
 (defn central-page []
 	(case (first @(rf/subscribe [:active]))
 		:user [user-component]
-		:project "project component"
+		:project [project-component]
 		:event "event component"
 		"something wrong" 	
 	))	

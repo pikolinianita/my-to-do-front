@@ -106,6 +106,13 @@
 )
 
 (rf/reg-event-db
+	:fitch-post
+	(fn [db]
+		db
+	)
+)
+
+(rf/reg-event-db
 	:failed-user
 	(fn [db _]
 		(assoc db :screen :login)
@@ -146,10 +153,43 @@
 	(log! :i "projects sub: " db)
 	(db :projects)))
 
+(defn get-proj-with-id [ projects id]
+	(first (filter #(= id (:id %)) projects))
+)
 
+(rf/reg-sub 
+	:active-project
+	:<- [:projects]
+	:<- [:active]
+	:-< [:user]
+	(fn [[projects active user] _ ]
+		(log! :i "active: " active " projects: " projects)
+			
+		(let [active (get-proj-with-id projects (second active))]
+			(when-not (active :fetched) (rf/dispatch [:fitch-get (str "project/" (user :id) "/" (active :id)) :got-project :failed-project] ))
+		)
+	)
+)
 
+(rf/reg-event-db
+	:failed-project
+	(fn [db _]
+		(assoc db :screen :login)
+	)
+)
 
+(rf/reg-event-db
+	:got-project
+	(fn [db [_ body]]
+		(log! :i body)
+		;(let [active-position (map-indexed #([%1 (:fetched %2)]) projects) ] 
+		
+		)
+		(assoc db :body-proj body)
+	)
+)
 
+;[:fitch-get (str "user/" name) :got-user :failed-user]
 
 
 
