@@ -182,11 +182,13 @@
 	:got-project
 	(fn [db [_ body]]
 		(log! :i body)
-		;(let [active-position (map-indexed #([%1 (:fetched %2)]) projects) ] 
+		(let [counter (first (keep-indexed #(when (= (second (db :active)) (%2 :id) ) %1)  (db :projects) ))] 
 		
-		)
-		(assoc db :body-proj body)
-	)
+		
+		
+		(update-in db [:projects counter] #(merge % (assoc body :fetched true)))
+		;(assoc db :body-proj body :counter counter)
+	))
 )
 
 ;[:fitch-get (str "user/" name) :got-user :failed-user]
