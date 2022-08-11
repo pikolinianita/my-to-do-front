@@ -1,0 +1,4 @@
+todo:
+
+1) Fix delete user in controller
+2) find user (by name)

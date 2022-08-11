@@ -9,48 +9,34 @@
 
 ;http://html2hiccup.buttercloud.com/
 
-(defn menu []
-  [:aside.menu
-   [:p.menu-label]
-   [:ul.menu-list
-    [:li
-     [:a "Dashboard"]]
-    [:li
-     [:a "Customers"]]]
-   [:p {:class "menu-label"}]
-   [:ul {:class "menu-list"}
-    [:li
-     [:a "Team Settings"]]
-    [:li
-     [:a {:class "is-active"} "Manage Your Team"]
-     [:ul
-      [:li
-       [:a "Members"]]
-      [:li
-       [:a "Plugins"]]
-      [:li
-       [:a "Add a member"]]]]
-    [:li
-     [:a "Invitations"]]
-    [:li
-     [:a "Cloud Storage Environment Settings"]]
-    [:li
-     [:a "Authentication"]]]
-   [:p {:class "menu-label"}]
-   [:ul {:class "menu-list"}
-    [:li
-     [:a "Payments"]]
-    [:li
-     [:a "Transfers"]]
-    [:li
-     [:a "Balance"]]]]
-  )
+(defn new-user-modal [] 
+	(when (= :user @(rf/subscribe [:modal]))
+	(let [inp (reagent/atom {:name "" :placeholder "Write User Number"})]
+	(fn [] [:div.modal.is-active
+		[:div.modal-background]
+		[:div.modal-card
+			[:header.modal-card-head
+			[:p.modal-card-title "Create user"]
+			[:button {:class "delete", :aria-label "close" :on-click (fn [_] (rf/dispatch [:modal-off]))}]]
+	[:section.modal-card-body 
+			[:div "Enter user name:"]
+			[:input {:type :text
+            :value (@inp :name)
+			:name "user-name"
+            :on-change (fn [e]
+						(log! :i (-> e .-target .-value))
+                         (swap! inp assoc :name (-> e .-target .-value)))}] ]
+	[:footer.modal-card-foot
+		[:button.button.is-success {:on-click (fn [_] (rf/dispatch [:create-user (@inp :name)]))} "Save changes"]
+		[:button.button {:on-click (fn [_] (rf/dispatch [:modal-off]))} "Cancel"]]]])))
+)
 
 (defn welcome-screen []
 (let [inp (reagent/atom {:name "" :placeholder "Write User Number"})]
 	(fn [] 
 	[:div
 		[:h1 "Please enter user name"]
+		[new-user-modal]
 		[:input {:type :text
             :value (@inp :name)
 			:name "user-name"
@@ -58,7 +44,7 @@
 						(log! :i (-> e .-target .-value))
                          (swap! inp assoc :name (-> e .-target .-value)))}]
 		[:button.button {:on-click (fn [_] (rf/dispatch [:try-login (@inp :name)]))} "Find User"]
-        [:button.button {:on-click (fn [_] (rf/dispatch [:try-create (@inp :name)]))} "Create User - not work yet"]		
+        [:button.button {:on-click (fn [_] (rf/dispatch [:modal :user]))} "Create User - not work yet"]		
 		]))
 )
 
@@ -88,22 +74,47 @@
 	]		
 ))
 
+
+
+(defn new-project-modal []
+	(when (= :project @(rf/subscribe [:modal])) 
+	[:div.modal.is-active
+		[:div.modal-background]
+		[:div.modal-card.
+			[:header.modal-card-head.
+			[:p.modal-card-title "Modal title"]
+			[:button {:class "delete", :aria-label "close" :on-click (fn [_] (rf/dispatch [:modal-off]))}]]
+	[:section.modal-card-body  "<!-- Content ... -->" ]
+	[:footer.modal-card-foot
+		[:button.button.is-success "Save changes"]
+		[:button.button {:on-click (fn [_] (rf/dispatch [:modal-off]))} "Cancel"]]]])
+
+)
+
 (defn user-component []
 	(let [user-name (:name @(rf/subscribe [:user]))
 		  project-count (count @(rf/subscribe [:projects]))]
 		[:div.has-text-centered
 			[:div.is-size-3 (str "Hello " user-name)]
+			[new-project-modal]
 			[:div "wellcome to the jungle"]
 			(if (zero? project-count) 
 				[:div "Start project please!!!"] 
 				[:div (str "you have " project-count " projects!" )])
 			[:div
-				 [:button.button.mx-2 "Create Project"]
-				 [:button.button.is-danger.mx-2 "Delete User"]
+				 [:button.button.mx-2 {:on-click (fn [_] (rf/dispatch [:modal :project]))} "Create Project"]
+				 [:button.button.is-warning.mx-2 {:on-click (fn [_] (rf/dispatch [:init-db]))} "Log out"]
+				 [:button.button.is-danger.mx-2 {:on-click (fn [_] 
+					(rf/dispatch [:fitch-delete (str "user/" (@(rf/subscribe [:user]) :id) "/666") :init-db :failed-user]))} 
+					"Delete User"]
+;;;;-------------------!!!!!!!!!!!!!!!!!!!!-----------------------------
+;;;; FIX DELETE USER SERVER SIDE  ------------------					
 			]
 		]
 	)
 )
+
+
 
 (defn project-component []
 	(let [active-project @(rf/subscribe [:active-project])]
@@ -126,8 +137,9 @@
 			[:p.title "Here be dragons"] 
 			[:p.subtitle "No other page is better than this"]]]
 		[:div.columns
-			[:div.column.is-one-third [side-menu]]
-			[:div.column [central-page]]]
+			[:div.column.is-one-quarter [side-menu]]
+			[:div.column.is-half [central-page]]
+			[:div.column.is-one-quarter [:div "kill space"]]]
 	]
 ))
 

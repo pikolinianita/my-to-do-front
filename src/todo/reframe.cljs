@@ -12,7 +12,8 @@
  (fn [_ _]
    (log! :i "DB Init")
    {:screen :login
-    :active :login}
+    :active :login
+	:modal false}
     ))
 	
 (rf/reg-event-db 
@@ -21,6 +22,7 @@
    (log! :i "DB Init")
  {:screen :user,
  :active [:user nil]
+ :modal false
  :user {:id 1, :name "Worker"},
  :projects
  [{:id 4, :name "Read"}
@@ -97,11 +99,37 @@
 		(-> (.fetch js/window (str api name) (clj->js {:mode "cors"}))
 		(.then #(.json %))
 		(.then #(rf/dispatch [succ (js->clj % :keywordize-keys true)]))
-		(.catch #(rf/dispatch [failure]))
-		
+		(.catch #(rf/dispatch [failure]))		
 		)
-	db
-	
+	db	
+	)
+)
+
+(rf/reg-event-db
+	:fitch-delete
+	(fn [db [_ name succ failure]]
+		(log! :i "should call deletet to: "  (str api name) " then send stuff to: " (str succ) " or fail to: " (str failure))
+		(-> (.fetch js/window (str api name) (clj->js {:method "DELETE" :mode "cors"}))
+		(.then #(.json %))
+		(.then #(rf/dispatch [succ (js->clj % :keywordize-keys true)]))
+		(.catch #(rf/dispatch [failure]))		
+		)
+	db	
+	)
+)
+
+
+(rf/reg-event-db
+	:create-user
+	(fn [db [_ name]]
+		(log! :i "try to call post " (str api "user/") " with name "  name)
+		(-> (.fetch js/window (str api "user/") 
+				(clj->js {:method "POST" :mode "cors" :body (.stringify js/JSON (clj->js {:name name})) 
+				:headers { "Accept" "application/json" "Content-Type" "application/json"} }))
+			(.then #(.json %))
+			(.then #(log! :i "response: " %))
+		)
+		db
 	)
 )
 
@@ -161,7 +189,7 @@
 	:active-project
 	:<- [:projects]
 	:<- [:active]
-	:-< [:user]
+	:<- [:user]
 	(fn [[projects active user] _ ]
 		(log! :i "active: " active " projects: " projects)
 			
@@ -182,20 +210,30 @@
 	:got-project
 	(fn [db [_ body]]
 		(log! :i body)
-		(let [counter (first (keep-indexed #(when (= (second (db :active)) (%2 :id) ) %1)  (db :projects) ))] 
-		
-		
-		
-		(update-in db [:projects counter] #(merge % (assoc body :fetched true)))
-		;(assoc db :body-proj body :counter counter)
+		(let [counter (first (keep-indexed #(when (= (second (db :active)) (%2 :id) ) %1)  (db :projects) ))] 	
+				(update-in db [:projects counter] #(merge % (assoc body :fetched true)))
 	))
 )
 
-;[:fitch-get (str "user/" name) :got-user :failed-user]
+(rf/reg-sub  
+	:modal
+	(fn [db] 
+	(log! :i "modal sub: " db)
+	(db :modal)))
 
+(rf/reg-event-db
+	:modal
+	(fn [db [_ target] ]
+		(assoc db :modal target)
+	)
+)
 
-
-
+(rf/reg-event-db
+	:modal-off
+	(fn [db _]
+		(assoc db :modal false)
+	)
+)
 
 
 
