@@ -12,7 +12,7 @@
 (defn new-user-modal [] 
 	(when (= :user @(rf/subscribe [:modal]))
 	(let [inp (reagent/atom {:name "" :placeholder "Write User Number"})]
-	(fn [] [:div.modal.is-active
+	(fn [] [(if (= :user @(rf/subscribe [:modal])) :div.modal.is-active :div.modal)
 		[:div.modal-background]
 		[:div.modal-card
 			[:header.modal-card-head
@@ -105,7 +105,7 @@
 				 [:button.button.mx-2 {:on-click (fn [_] (rf/dispatch [:modal :project]))} "Create Project"]
 				 [:button.button.is-warning.mx-2 {:on-click (fn [_] (rf/dispatch [:init-db]))} "Log out"]
 				 [:button.button.is-danger.mx-2 {:on-click (fn [_] 
-					(rf/dispatch [:fitch-delete (str "user/" (@(rf/subscribe [:user]) :id) "/666") :init-db :failed-user]))} 
+					(rf/dispatch [:fitch-delete (str "user/" (@(rf/subscribe [:user]) :id)) :init-db :failed-user]))} 
 					"Delete User"]
 ;;;;-------------------!!!!!!!!!!!!!!!!!!!!-----------------------------
 ;;;; FIX DELETE USER SERVER SIDE  ------------------					

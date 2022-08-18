@@ -88,7 +88,7 @@
 (rf/reg-event-db
 	:try-login
 	(fn [db [_ name]]
-	(rf/dispatch [:fitch-get (str "user/" name) :got-user :failed-user])
+	(rf/dispatch [:fitch-get (str "user/name/" name) :got-user :failed-user])
 	db
 	)
 )
@@ -129,6 +129,7 @@
 			(.then #(.json %))
 			(.then #(log! :i "response: " %))
 		)
+		(rf/dispatch [:modal-off])
 		db
 	)
 )
