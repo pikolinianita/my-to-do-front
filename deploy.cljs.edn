@@ -1,7 +1,7 @@
 ^{:watch-dirs ["test" "src"]
   :css-dirs ["resources/public/css"]
    }
-{:main scores.core
+{:main todo.core
 ; :pseudo-names true ;;bigger file, better debug
 ; :externs ["externs.js"] ; not here
  }

@@ -1,14 +1,14 @@
-(ns ^:figwheel-hooks scores.core
+(ns ^:figwheel-hooks todo.core
   (:require
-   [scores.view :as view]
-   [scores.reframe]
+   [todo.view :as view]
+   [todo.reframe]
    ;; libraries: 
    [goog.dom :as gdom]
    [reagent.core :as reagent :refer [atom]]
    [reagent.dom :as rdom]  
    [re-frame.core :as rf]))
 
-(println "This text is printed from src/scores/core.cljs. Go ahead and edit it and see reloading in action.")
+(println "This text is printed from src/todo/core.cljs. Go ahead and edit it and see reloading in action.")
 
 (defn multiply [a b] (* a b))
 
@@ -23,7 +23,7 @@
 
 (defn mount-app-element []
   (when-let [el (get-app-element)]
-    (rf/dispatch-sync [:init-db])    	
+    (rf/dispatch-sync [:dev-init-db])    	
     (mount el)))
 
 ;; conditionally start your application based on the presence of an "app" element

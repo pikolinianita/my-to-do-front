@@ -3,6 +3,6 @@
   :auto-testing true
   :open-url "http://[[server-hostname]]:[[server-port]]/index-dev.html"
    }
-{:main scores.core
+{:main todo.core
  :closure-defines {"re_frame.trace.trace_enabled_QMARK_" true}
  :preloads        [day8.re-frame-10x.preload devtools.preload]}
