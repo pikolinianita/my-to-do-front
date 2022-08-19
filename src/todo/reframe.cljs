@@ -118,7 +118,6 @@
 	)
 )
 
-
 (rf/reg-event-db
 	:create-user
 	(fn [db [_ name]]
@@ -135,11 +134,28 @@
 )
 
 (rf/reg-event-db
-	:fitch-post
-	(fn [db]
+	:create-project
+	(fn [db [_ user-id body]]
+		(log! :i "try to call post " (str api "project/" user-id) " with body "  body)
+		(-> (.fetch js/window (str api "project/" user-id ) 
+				(clj->js {:method "POST" :mode "cors" :body (.stringify js/JSON (clj->js (assoc body :tags []))) 
+				:headers { "Accept" "application/json" "Content-Type" "application/json"} }))
+			(.then #(.json %))
+			(.then #(do (log! :i "response: " %) %))
+			(.then #(rf/dispatch [:add-created-project % body]))
+		)
+		(rf/dispatch [:modal-off])
+		
 		db
 	)
 )
+
+;^^^^ move "add tags" to Let
+
+;!!!!!!!!!!!!!!---------------
+; server NPE when no tags attached 
+
+
 
 (rf/reg-event-db
 	:failed-user
@@ -196,6 +212,7 @@
 			
 		(let [active (get-proj-with-id projects (second active))]
 			(when-not (active :fetched) (rf/dispatch [:fitch-get (str "project/" (user :id) "/" (active :id)) :got-project :failed-project] ))
+			active
 		)
 	)
 )
@@ -206,6 +223,14 @@
 		(assoc db :screen :login)
 	)
 )
+
+(comment (rf/reg-event-db
+	:create-project
+	(fn [db [_ project-body]]
+		
+		(assoc db :modal false)
+	)
+))
 
 (rf/reg-event-db
 	:got-project
@@ -219,7 +244,7 @@
 (rf/reg-sub  
 	:modal
 	(fn [db] 
-	(log! :i "modal sub: " db)
+		(log! :i "modal sub: " db)
 	(db :modal)))
 
 (rf/reg-event-db

@@ -77,17 +77,39 @@
 
 
 (defn new-project-modal []
-	(when (= :project @(rf/subscribe [:modal])) 
-	[:div.modal.is-active
+	(when (= :project @(rf/subscribe [:modal]))
+		(let [inp (reagent/atom {:name "" :icon "" :reward ""})]
+		(fn [] 
+	[(if (= :project @(rf/subscribe [:modal])) :div.modal.is-active :div.modal)
 		[:div.modal-background]
 		[:div.modal-card.
-			[:header.modal-card-head.
+			[:header.modal-card-head
 			[:p.modal-card-title "Modal title"]
 			[:button {:class "delete", :aria-label "close" :on-click (fn [_] (rf/dispatch [:modal-off]))}]]
-	[:section.modal-card-body  "<!-- Content ... -->" ]
+	[:section.modal-card-body  
+			[:nav.level "Name: " [:input {:type :text
+										:value (@inp :name)
+										:name "project-name"
+										:on-change (fn [e]
+										(log! :i (-> e .-target .-value))
+										(swap! inp assoc :name (-> e .-target .-value)))}] ]
+			[:nav.level "Reward: " [:input {:type :text
+										:value (@inp :reward)
+										:name "project-reward"
+										:on-change (fn [e]
+										(log! :i (-> e .-target .-value))
+										(swap! inp assoc :reward (-> e .-target .-value)))}] ]							
+			[:nav.level "Icon" [:input {:type :text
+										:value (@inp :icon)
+										:name "project-icon"
+										:on-change (fn [e]
+										(log! :i (-> e .-target .-value))
+										(swap! inp assoc :icon (-> e .-target .-value)))}] ]							
+										
+										]
 	[:footer.modal-card-foot
-		[:button.button.is-success "Save changes"]
-		[:button.button {:on-click (fn [_] (rf/dispatch [:modal-off]))} "Cancel"]]]])
+		[:button.button.is-success {:on-click (fn [_] (rf/dispatch [:create-project (:id @(rf/subscribe [:user])) @inp]))} "Save changes"]
+		[:button.button {:on-click (fn [_] (rf/dispatch [:modal-off]))} "Cancel"]]]])))
 
 )
 
@@ -107,8 +129,7 @@
 				 [:button.button.is-danger.mx-2 {:on-click (fn [_] 
 					(rf/dispatch [:fitch-delete (str "user/" (@(rf/subscribe [:user]) :id)) :init-db :failed-user]))} 
 					"Delete User"]
-;;;;-------------------!!!!!!!!!!!!!!!!!!!!-----------------------------
-;;;; FIX DELETE USER SERVER SIDE  ------------------					
+				
 			]
 		]
 	)
@@ -116,19 +137,55 @@
 
 
 
-(defn project-component []
+(defn project-component [id]
 	(let [active-project @(rf/subscribe [:active-project])]
-		[:div (str active-project)]
+		[:div "kokoroko" (str active-project) 
+			[:nav.level 
+				[:div (active-project :name)]
+				[:div (active-project :reward)] ]
+				 [:button.button.mx-2 "Create Event"]
+				 [:button.button.is-danger.mx-2 "Delete Project"] 
+			[:div.columns.is-multiline
+				
+				[:div.column.is-4
+					[:p.title "aaa"]
+					[:p.content "eee"]]
+				[:div.column.is-4
+					[:p.title "bbb"]
+					[:p.content "fff"]]
+				[:div.column.is-4
+					[:p.title "ccc"]
+					[:p.content "ggg"]]
+				[:div.column.is-4
+					[:p.title "ddd"]
+					[:p.content "hhh"]]
+				[:div.column.is-4
+					[:p.title "aaa"]
+					[:p.content "eee"]]
+				[:div.column.is-4
+					[:p.title "bbb"]
+					[:p.content "fff"]]
+				[:div.column.is-4
+					[:p.title "ccc"]
+					[:p.content "ggg"]]
+				[:div.column.is-4
+					[:p.title "ddd"]
+					[:p.content "hhh"]]
+				]
+			]
 	)
 )
 
+;[:div (.toLocaleString (js/Date. "2022-08-18T20:40:56.062727"))
+
 (defn central-page []
-	(case (first @(rf/subscribe [:active]))
+	(let [[active id]  @(rf/subscribe [:active])]
+	(case active 
 		:user [user-component]
-		:project [project-component]
+		:project [project-component id]
 		:event "event component"
 		"something wrong" 	
-	))	
+	)))	
 
 (defn main-screen []
 	(let [hmm @(rf/subscribe [:active])]
